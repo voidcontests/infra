@@ -1,28 +1,106 @@
 services:
   postgres:
-    container_name: void-postgres
     image: postgres:latest
+    container_name: void-postgres
     restart: unless-stopped
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
     networks:
       - voidcontests
 
   redis:
-    container_name: void-redis
     image: redis:latest
+    container_name: void-redis
     restart: unless-stopped
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--appendonly", "yes"]
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-    volumes:
-      - redis_data:/data
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: redis-cli PING
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    networks:
+      - voidcontests
+
+  api:
+    image: ghcr.io/voidcontests/api:latest
+    container_name: void-api
+    restart: unless-stopped
+    environment:
+      CONFIG_PATH: ./config/dev.yaml
+    ports:
+      - "5919:5919"
+    volumes:
+      - ../api/config:/app/config
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:5919/api/healthcheck || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    networks:
+      - voidcontests
+
+  coyote:
+    image: ghcr.io/voidcontests/coyote:latest
+    container_name: void-coyote
+    restart: unless-stopped
+    environment:
+      - CONFIG_PATH=/app/config/dev.yaml
+    ports:
+      - "7197:7197"
+    volumes:
+      - ../coyote/config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:7197/api/healthcheck || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    networks:
+      - voidcontests
+
+  web:
+    image: ghcr.io/voidcontests/web:latest
+    container_name: void-web
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3909
+      - HOSTNAME=0.0.0.0
+    ports:
+      - "3909:3909"
+    depends_on:
+      - api
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:3909/
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
     networks:
       - voidcontests
 
