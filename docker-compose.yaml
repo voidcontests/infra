@@ -15,6 +15,10 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
+    profiles:
+      - all
+      - deps
+      - backend
     networks:
       - voidcontests
 
@@ -35,6 +39,10 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
+    profiles:
+      - all
+      - deps
+      - backend
     networks:
       - voidcontests
 
@@ -49,14 +57,21 @@ services:
     volumes:
       - ../api/config:/app/config
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+        required: false
+      redis:
+        condition: service_healthy
+        required: false
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:5919/api/healthcheck || exit 1
       interval: 10s
       timeout: 3s
       retries: 3
       start_period: 30s
+    profiles:
+      - all
+      - backend
     networks:
       - voidcontests
 
@@ -72,14 +87,21 @@ services:
       - ../coyote/config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+        required: false
+      redis:
+        condition: service_healthy
+        required: false
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:7197/api/healthcheck || exit 1
       interval: 10s
       timeout: 3s
       retries: 3
       start_period: 30s
+    profiles:
+      - all
+      - backend
     networks:
       - voidcontests
 
@@ -94,13 +116,18 @@ services:
     ports:
       - "3909:3909"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+        required: false
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:3909/
       interval: 10s
       timeout: 3s
       retries: 3
       start_period: 30s
+    profiles:
+      - all
+      - web
     networks:
       - voidcontests
 
