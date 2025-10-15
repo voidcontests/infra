@@ -34,7 +34,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: redis-cli PING
+      test: redis-cli --no-auth-warning --pass ${REDIS_PASSWORD} PING
       interval: 10s
       timeout: 3s
       retries: 3
