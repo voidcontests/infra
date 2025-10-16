@@ -48,6 +48,9 @@ services:
 
   api:
     image: ghcr.io/voidcontests/api:latest
+    build:
+      context: ../api
+      dockerfile: Dockerfile
     container_name: void-api
     restart: unless-stopped
     environment:
@@ -77,6 +80,9 @@ services:
 
   coyote:
     image: ghcr.io/voidcontests/coyote:latest
+    build:
+      context: ../coyote
+      dockerfile: Dockerfile
     container_name: void-coyote
     restart: unless-stopped
     environment:
@@ -107,6 +113,9 @@ services:
 
   web:
     image: ghcr.io/voidcontests/web:latest
+    build:
+      context: ../web
+      dockerfile: Dockerfile
     container_name: void-web
     restart: unless-stopped
     environment:
@@ -117,6 +126,9 @@ services:
       - "3909:3909"
     depends_on:
       api:
+        condition: service_healthy
+        required: false
+      coyote:
         condition: service_healthy
         required: false
     healthcheck:
