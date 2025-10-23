@@ -49,9 +49,11 @@ CREATE TABLE problems (
 CREATE TABLE test_cases (
     id SERIAL PRIMARY KEY,
     problem_id INTEGER NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
+    ordinal INTEGER NOT NULL,
     input TEXT NOT NULL,
     output TEXT NOT NULL,
-    is_example BOOLEAN DEFAULT false NOT NULL
+    is_example BOOLEAN DEFAULT false NOT NULL,
+    UNIQUE (problem_id, ordinal)
 );
 
 CREATE TABLE contest_problems (
@@ -70,26 +72,24 @@ CREATE TABLE entries (
     UNIQUE (contest_id, user_id)
 );
 
--- entry_id, problem_id, status, verdict, answer, code, language, passed_tests_count, stderr
 CREATE TABLE submissions (
     id SERIAL PRIMARY KEY,
     entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
     problem_id INTEGER NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
     verdict VARCHAR(30) NOT NULL DEFAULT 'not_judged',
-    answer TEXT NOT NULL,
     code TEXT NOT NULL,
     language VARCHAR(20) NOT NULL,
-    passed_tests_count INTEGER DEFAULT 0 NOT NULL CHECK (passed_tests_count >= 0),
-    stderr TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL
 );
 
-CREATE TABLE failed_tests (
+CREATE TABLE testing_reports (
     id SERIAL PRIMARY KEY,
     submission_id INTEGER NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
-    input TEXT NOT NULL,
-    expected_output TEXT NOT NULL,
-    actual_output TEXT NOT NULL,
+    passed_tests_count INTEGER DEFAULT 0 NOT NULL CHECK (passed_tests_count >= 0),
+    total_tests_count INTEGER DEFAULT 0 NOT NULL CHECK (total_tests_count >= 0),
+    first_failed_test_id INTEGER REFERENCES test_cases(id),
+    first_failed_test_output TEXT DEFAULT '',
+    stderr TEXT DEFAULT '' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL
 );

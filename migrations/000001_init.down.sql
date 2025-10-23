@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS failed_tests;
+DROP TABLE IF EXISTS testing_reports;
 DROP TABLE IF EXISTS submissions;
 DROP TABLE IF EXISTS entries;
 DROP TABLE IF EXISTS contest_problems;
@@ -7,6 +7,3 @@ DROP TABLE IF EXISTS problems;
 DROP TABLE IF EXISTS contests;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS roles;
-
-DROP TYPE IF EXISTS verdict;
-DROP TYPE IF EXISTS problem_kind;
