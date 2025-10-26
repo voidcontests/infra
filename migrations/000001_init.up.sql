@@ -38,9 +38,10 @@ CREATE TABLE problems (
     id SERIAL PRIMARY KEY,
     writer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(64) NOT NULL,
-    statement TEXT DEFAULT '' NOT NULL,
+    statement TEXT NOT NULL,
     difficulty VARCHAR(10) NOT NULL CHECK (difficulty IN ('easy', 'mid', 'hard')),
-    time_limit_ms INTEGER DEFAULT 5000 NOT NULL CHECK (time_limit_ms >= 0),
+    time_limit_ms INTEGER DEFAULT 2000 NOT NULL CHECK (time_limit_ms >= 0),
+    memory_limit_mb INTEGER DEFAULT 128 NOT NULL CHECK (memory_limit_mb >= 0),
     created_at TIMESTAMP DEFAULT now() NOT NULL
 );
 
