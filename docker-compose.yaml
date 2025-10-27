@@ -10,7 +10,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: pg_isready -U postgres
+      test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -34,7 +34,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: redis-cli --no-auth-warning --pass ${REDIS_PASSWORD} PING
+      test: ["CMD", "redis-cli", "--no-auth-warning", "--pass", "${REDIS_PASSWORD}", "PING"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -67,7 +67,7 @@ services:
         condition: service_healthy
         required: false
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:5919/api/healthcheck || exit 1
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:5919/api/healthcheck || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -100,7 +100,7 @@ services:
         condition: service_healthy
         required: false
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:7197/api/healthcheck || exit 1
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:7197/api/healthcheck || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -132,7 +132,7 @@ services:
         condition: service_healthy
         required: false
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:3909/
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3909/"]
       interval: 10s
       timeout: 3s
       retries: 3
