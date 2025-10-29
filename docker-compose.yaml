@@ -47,7 +47,7 @@ services:
       - voidcontests
 
   api:
-    image: ghcr.io/voidcontests/api:latest
+    image: ghcr.io/voidcontests/api:${TAG-latest}
     build:
       context: ../api
       dockerfile: Dockerfile
@@ -62,10 +62,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-        required: false
+        required: true
       redis:
         condition: service_healthy
-        required: false
+        required: true
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:5919/api/healthcheck || exit 1"]
       interval: 10s
@@ -79,7 +79,7 @@ services:
       - voidcontests
 
   coyote:
-    image: ghcr.io/voidcontests/coyote:latest
+    image: ghcr.io/voidcontests/coyote:${TAG-latest}
     build:
       context: ../coyote
       dockerfile: Dockerfile
@@ -95,10 +95,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-        required: false
+        required: true
       redis:
         condition: service_healthy
-        required: false
+        required: true
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:7197/api/healthcheck || exit 1"]
       interval: 10s
@@ -112,7 +112,7 @@ services:
       - voidcontests
 
   web:
-    image: ghcr.io/voidcontests/web:latest
+    image: ghcr.io/voidcontests/web:${TAG-latest}
     build:
       context: ../web
       dockerfile: Dockerfile
@@ -127,10 +127,10 @@ services:
     depends_on:
       api:
         condition: service_healthy
-        required: false
+        required: true
       coyote:
         condition: service_healthy
-        required: false
+        required: true
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3909/"]
       interval: 10s
