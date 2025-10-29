@@ -42,6 +42,7 @@ CREATE TABLE problems (
     difficulty VARCHAR(10) NOT NULL CHECK (difficulty IN ('easy', 'mid', 'hard')),
     time_limit_ms INTEGER DEFAULT 2000 NOT NULL CHECK (time_limit_ms >= 0),
     memory_limit_mb INTEGER DEFAULT 128 NOT NULL CHECK (memory_limit_mb >= 0),
+    checker VARCHAR(10) NOT NULL DEFAULT 'tokens',
     created_at TIMESTAMP DEFAULT now() NOT NULL
 );
 
