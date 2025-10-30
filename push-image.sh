@@ -21,6 +21,7 @@ SHORT_SHA=${GITHUB_SHA::7}
 
 if [[ "$GITHUB_REF" == refs/tags/* ]]; then
   RAW_TAG="${GITHUB_REF#refs/tags/}"
+  TAG_NAME="${RAW_TAG//\//-}"
   IS_TAG=true
 else
   RAW_BRANCH="${GITHUB_REF#refs/heads/}"
