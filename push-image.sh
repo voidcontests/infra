@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# This script is intended to be run exclusively in GitHub Actions workflows.
+# It builds and pushes Docker images to a container registry based on the
+# current branch or tag ref from the GitHub event environment variables.
+# Usage: ./deploy.sh <image_name>
+#
+# Environment variables required:
+# - GITHUB_SHA: Commit SHA of the current GitHub event.
+# - GITHUB_REF: Git ref (branch or tag) of the current GitHub event.
+
 set -e
 
 IMAGE_NAME=$1
