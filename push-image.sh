@@ -18,22 +18,29 @@ if [ -z "$IMAGE_NAME" ]; then
 fi
 
 SHORT_SHA=${GITHUB_SHA::7}
-BRANCH_NAME=${GITHUB_REF#refs/heads/}
-TAG_NAME=${GITHUB_REF#refs/tags/}
 
-if [[ -n "$TAG_NAME" ]]; then
+if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+  RAW_TAG="${GITHUB_REF#refs/tags/}"
+  IS_TAG=true
+else
+  RAW_BRANCH="${GITHUB_REF#refs/heads/}"
+  TAG_NAME="${RAW_BRANCH//\//-}"
+  IS_TAG=false
+fi
+
+if [[ "$IS_TAG" == true ]]; then
   echo "Building and pushing image with tag: $TAG_NAME"
   docker build -t $IMAGE_NAME:$TAG_NAME .
   docker push $IMAGE_NAME:$TAG_NAME
 else
-  echo "Building image with short SHA and branch name: $SHORT_SHA, $BRANCH_NAME"
-  docker build -t $IMAGE_NAME:$SHORT_SHA -t $IMAGE_NAME:$BRANCH_NAME .
-  if [[ "$BRANCH_NAME" == "master" || "$BRANCH_NAME" == "dev" ]]; then
+  echo "Building image with short SHA and branch name: $SHORT_SHA, $TAG_NAME"
+  docker build -t $IMAGE_NAME:$SHORT_SHA -t $IMAGE_NAME:$TAG_NAME .
+  if [[ "$TAG_NAME" == "master" || "$TAG_NAME" == "dev" ]]; then
     docker push $IMAGE_NAME:$SHORT_SHA
   fi
-  docker push $IMAGE_NAME:$BRANCH_NAME
+  docker push $IMAGE_NAME:$TAG_NAME
 
-  if [[ "$BRANCH_NAME" == "master" ]]; then
+  if [[ "$TAG_NAME" == "master" ]]; then
     docker tag $IMAGE_NAME:$SHORT_SHA $IMAGE_NAME:latest
     docker push $IMAGE_NAME:latest
   fi
